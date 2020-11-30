@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_user_preferences/src/share_preferences/user_prefs.dart';
 import 'package:flutter_user_preferences/src/widgets/menu_widget.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -10,15 +11,30 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
 
-  bool _colorSecundario = false;
-  int _genero = 1;
-  String _nombre = 'Dani';
+  final prefs = new UserPrefs();
+
+  bool _colorSecundario;
+  int _genero;
+  String _nombre;
   TextEditingController _textController;
 
   @override
   void initState() {
     super.initState();
+    prefs.lastScreen = SettingsScreen.routeName;
+
+    _genero = prefs.genero;
+    _colorSecundario = prefs.colorSecundario;
+    _nombre = prefs.nombre;
     _textController = new TextEditingController(text: _nombre);
+  }
+
+  _setSelectedRadio(int value) async {
+    prefs.genero = value;
+    setState(() {
+      _genero = value;
+    });
+
   }
 
   @override
@@ -26,6 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
         appBar: AppBar(
           title: Text('Ajustes'),
+          backgroundColor: (prefs.colorSecundario) ? Colors.teal : Colors.blue,
         ),
         drawer: MenuWidget(),
         body: ListView(
@@ -44,27 +61,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (bool value) {
                   setState(() {
                     _colorSecundario = value;
+                    prefs.colorSecundario = value;
                   });
                 }),
             RadioListTile(
               value: 1,
               title: Text('Masculino'),
               groupValue: _genero,
-              onChanged: (int value) {
-                setState(() {
-                  _genero = value;
-                });
-              },
+              onChanged: _setSelectedRadio,
             ),
             RadioListTile(
               value: 2,
               title: Text('Femenino'),
               groupValue: _genero,
-              onChanged: (int value) {
-                setState(() {
-                  _genero = value;
-                });
-              },
+              onChanged: _setSelectedRadio,
             ),
             Divider(),
             Container(
@@ -78,6 +88,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (String value) {
                   setState(() {
                     _nombre = value;
+                    prefs.nombre = value;
                   });
                 },
               ),
@@ -85,4 +96,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ));
   }
+
 }
